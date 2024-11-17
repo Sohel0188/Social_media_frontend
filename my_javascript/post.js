@@ -32,6 +32,37 @@ fetch('http://127.0.0.1:8000/post/post/')
     .then(data => {
         const parents = document.getElementById("all_post");
         data.forEach(post => {
+            let countReact = 0;
+            
+            data.forEach(post => {
+                
+                fetch(`http://127.0.0.1:8000/post/react/?post=${post.id}`)
+                .then(res => res.json())
+                .then(data => {
+                    // Step 1: Use a Set to collect unique reactions
+                    const uniqueReactions = new Set();         
+
+                    data.forEach(reaction => {
+                        uniqueReactions.add(reaction.reaction); 
+                        // console.log(reaction);
+                        countReact=countReact+1;
+                        
+                        
+                    });
+                    // Step 2: Generate HTML for unique reactions only
+                    const reactionsHTML = Array.from(uniqueReactions).map(reaction => {
+                        return `<span>${reaction}</span>`;
+                    }).join(' ');
+                    console.log(countReact);
+                    // Step 3: Update the DOM with the generated HTML
+                    document.getElementById(`reactdata${post.id}`).innerHTML = reactionsHTML;
+                    document.getElementById(`count${post.id}`).innerHTML = countReact;
+                })
+                
+                
+                .catch(error => console.error('Error:', error));
+            });
+            console.log(countReact);
             const div = document.createElement('div');
             div.classList.add('card', 'w-100', 'shadow-xss', 'rounded-xxl', 'border-0', 'p-4', 'mb-4');
             const timeAgoText = timeAgo(post.created_at);
@@ -47,6 +78,7 @@ fetch('http://127.0.0.1:8000/post/post/')
                     </div>
             `
             }
+            
             if (post.video) {
                 videoSection = `
                 <div class="card-body p-0 mb-3 rounded-3 overflow-hidden">
@@ -94,10 +126,9 @@ fetch('http://127.0.0.1:8000/post/post/')
                                     </div>
                                     <div class="card-body d-flex p-0">
                                         <a href="#"
-                                            class="emoji-bttn d-flex align-items-center fw-600 text-grey-900 text-dark lh-26 font-xssss me-2"><i
-                                                class="feather-thumbs-up text-white bg-primary-gradiant me-1 btn-round-xs font-xss"></i>
-                                            <i
-                                                class="feather-heart text-white bg-red-gradiant me-2 btn-round-xs font-xss"></i>2.8K
+                                            class="emoji-bttn d-flex align-items-center fw-600 text-grey-900 text-dark lh-26 font-xssss me-2">
+                                            
+                                            <h1 id=reactdata${post.id}></h1><span id=count${post.id}></span>K
                                             Like</a>
                                         
                                         <a href="#"
@@ -116,14 +147,15 @@ fetch('http://127.0.0.1:8000/post/post/')
                                        <div id="emoji-${post.id}" class="emoji-wrap">
                                             <ul class="emojis list-inline mb-0">
                                                
-                                                <li class="emoji list-inline-item" id="happy" style="cursor:pointer" onclick="giveReact(${post.id},'happy')">
-                                                    😆
+                                                <li class="emoji list-inline-item"  style="cursor:pointer">
+                                                   <h1 id="happy" onclick="giveReact(${post.id},'happy')">&#128514;</h1>
                                                 </li>
-                                                <li class="emoji list-inline-item" id="sad" style="cursor:pointer"  onclick="giveReact(${post.id},'sad')">
-                                                    😢
+                                                <li class="emoji list-inline-item"  style="cursor:pointer">
+                                                    <h1 id="sad" onclick="giveReact(${post.id},'sad')">&#128549;</h1>
+
                                                 </li>
-                                                <li class="emoji list-inline-item" id="right"  style="cursor:pointer" onclick="giveReact(${post.id},'right')">
-                                                    👍
+                                                <li class="emoji list-inline-item" style="cursor:pointer">
+                                                    <h1 id="right" onclick="giveReact(${post.id},'right')">&#128077;</h1>
                                                 </li>
                                             </ul>
                                         </div>
@@ -154,6 +186,7 @@ fetch('http://127.0.0.1:8000/post/post/')
                                 </div>
                             `
             parents.appendChild(div);
+            
         });
     })
 
@@ -166,13 +199,32 @@ const giveReact=(postid,react)=>{
         post: postid,
         
       };
-      console.log(info);
+    //   console.log(info);
       fetch('http://127.0.0.1:8000/post/react/',{
         method:"POST",
         headers: {"content-type":"application/json"},
         body: JSON.stringify(info),
       }).then((res=>res.json()))
-      .then((data)=>{console.log(data)});
+      .then((data)=>{
+
+        const reactDataContainer = document.getElementById(`reactdata${postid}`);
+        const currentReactions = Array.from(reactDataContainer.querySelectorAll("span")).map(span => span.textContent.trim());
+
+        // Check if the reaction already exists
+        if (!currentReactions.includes(reactValue)) {
+            // Append the new reaction if not already present
+            const newReaction = document.createElement("span");
+            newReaction.textContent = reactValue;
+            reactDataContainer.appendChild(newReaction);
+        }
+    
+    
+    }
+    
+    
+    );
+
+      
 
     // console.log(postid);
     // console.log(reactValue);
