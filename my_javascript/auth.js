@@ -64,20 +64,24 @@ const handleLogin=(event)=>{
     event.preventDefault();
     const username = getValue("user_name");
     const password = getValue("password");
-    const info= {
+    const value= {
         username,
         password,
-    }
-
+    };
+    console.log(value);
+   
     fetch("http://127.0.0.1:8000/user/login/",{
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: 'your_username', password: 'your_password' })
+        headers: { "Content-Type": "application/json" },
+        // body: JSON.stringify({ username:'username', password:'password' }),
+        body: JSON.stringify(value),
     })
-    .then(response => response.json())
+    .then(res => res.json())
     .then(data => {
-        if (data.redirect_url) {
+        console.log(data);
+        if (data.user_id) {
             window.location.href = data.redirect_url;
+            console.log(data.user_id);
         } else if (data.error) {
             document.getElementById('error').innerText= data.error;
         }
