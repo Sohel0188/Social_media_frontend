@@ -41,7 +41,6 @@ const handleRegistration=(event)=>{
             })
             
             .then((res) => res.json())
-
             .then((data)=>{
                 document.getElementById('error').innerText= data;
                 document.getElementById("registration_button").value = 'Register';
@@ -79,10 +78,12 @@ const handleLogin=(event)=>{
     .then(res => res.json())
     .then(data => {
         console.log(data);
-        if (data.user_id) {
+        if(data.token && data.user_id){
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("user_id", data.user_id);
             window.location.href = data.redirect_url;
-            console.log(data.user_id);
-        } else if (data.error) {
+        }
+        else if (data.error) {
             document.getElementById('error').innerText= data.error;
         }
     });
@@ -98,3 +99,17 @@ const hidePassword=(event,id1,id2,password)=>{
     document.getElementById(id1).className = "d-flex";
     document.getElementById(id2).className = "d-none";
 }
+
+
+//================== Auth Profile ===================//
+
+const userProfile=()=>{
+    const user_id = localStorage.getItem("user_id");
+    console.log(user_id);
+    fetch(`http://127.0.0.1:8000/user/list/${user_id}`)
+    .then(res => res.json())
+    .then(data=>{
+        console.log(data.phone);
+    });
+}
+
