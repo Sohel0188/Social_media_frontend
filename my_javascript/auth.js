@@ -109,7 +109,8 @@ const userProfile=()=>{
     fetch(`http://127.0.0.1:8000/user/list/${user_id}`)
     .then(res => res.json())
     .then(data=>{
-        console.log(data.phone);
+        console.log(data.date_of_birth);
     });
 }
 
+userProfile();
